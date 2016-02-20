@@ -15,17 +15,16 @@
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
-  <!-- uncomment to enable plugin in all products -->
   <depends>com.intellij.modules.lang</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+    <toolWindow id="Translations"  anchor="bottom" factoryClass="TranslationToolWindowFactory"/>
   </extensions>
 
   <actions>
-    <!-- Add your actions here -->
-    <action id="TransPlug.FirstAction" class="FirstAction" text="Do staff" description="Do some amazing staff">
-      <add-to-group group-id="EditMenu" anchor="first"/>
+    <action id="transplug.showTranslationToolWindow" class="ShowTranslationToolWindowAction" text="Show translations"
+            description="Show list of translations in project">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
       <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt K"/>
     </action>
   </actions>
