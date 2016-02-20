@@ -12,29 +12,51 @@ import java.awt.event.ActionListener;
 /**
  * Created by kubut on 20.02.2016
  */
-public class TranslationToolWindowFactory implements ToolWindowFactory {
-    private JPanel panel1;
+public class TranslationToolWindowFactory implements IDialogCallback, ToolWindowFactory {
+    private JPanel noTranslationPanel;
+    private JPanel translationPanel;
+    private JPanel panel;
     private JLabel no_config_text;
-    private JButton Settings;
+    private JButton settings;
+    private JTable translationsTable;
+    private JLabel test;
+
+    private Project project;
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        this.syncLayout(project);
+        this.project = project;
+        this.syncLayout();
+
+        this.settings.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new SettingsDialog(TranslationToolWindowFactory.this.project).show(TranslationToolWindowFactory.this);
+            }
+        });
+        this.settings.setText(Text.SETTINGS);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(this.panel1, "", false);
+        Content content = contentFactory.createContent(this.panel, "", false);
         toolWindow.getContentManager().addContent(content);
     }
 
-    public void syncLayout(final Project project){
-        this.no_config_text.setText(Text.NO_FILES);
-        this.Settings.setText(Text.SETTINGS);
+    @Override
+    public void okCallback(){
+        this.syncLayout();
+    }
 
-        this.Settings.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new SettingsDialog(project).show();
-            }
-        });
+    public void syncLayout(){
+        FilesService filesService = FilesService.getInstance(this.project);
+
+        if(filesService.isCorrectPath()){
+            this.test.setText("Jest tłumaczenie! :D");
+            this.translationPanel.setVisible(true);
+            this.noTranslationPanel.setVisible(false);
+        } else {
+            this.no_config_text.setText(Text.NO_FILES);
+            this.noTranslationPanel.setVisible(true);
+            this.translationPanel.setVisible(false);
+        }
     }
 }

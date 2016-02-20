@@ -18,7 +18,7 @@ public class SettingsDialog{
         this.propertiesComponent = PropertiesComponent.getInstance(project);
     }
 
-    public void show(){
+    public void show(IDialogCallback callback){
         JPanel panel = new JPanel();
         JLabel label = new JLabel();
         JTextField path = new JTextField();
@@ -35,6 +35,7 @@ public class SettingsDialog{
 
         if(this.prepareDialog(panel).show() == DialogWrapper.OK_EXIT_CODE){
             this.propertiesComponent.setValue("transPath",path.getText());
+            callback.okCallback();
         }
     }
 
