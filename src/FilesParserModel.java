@@ -32,9 +32,10 @@ public class FilesParserModel {
 
             try {
                 JsonObject subJson = entry.getValue().getAsJsonObject();
-                this.parseJson(subJson, key + ".");
+                translations.putAll(this.parseJson(subJson, key + "."));
             } catch (Exception e) {
                 this.addKeyIfUnique(key, this.getKeyParent(key));
+                translations.put(key, entry.getValue().getAsString());
             }
         }
 

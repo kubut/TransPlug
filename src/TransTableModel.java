@@ -23,7 +23,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
         for(String lang : this.languages){
             JsonObject json = this.filesService.getJsonByLanguage(lang);
             if(json != null){
-                filesParserModel.parseJson(this.filesService.getJsonByLanguage(lang));
+                translations.put(lang, filesParserModel.parseJson(this.filesService.getJsonByLanguage(lang)));
             }
         }
         this.mergedKeys = filesParserModel.getKeys();
@@ -56,7 +56,17 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return this.mergedKeys.get(rowIndex);
+        String value;
+
+        if(columnIndex == 0){
+           value = this.mergedKeys.get(rowIndex);
+        } else {
+            String lang = this.languages.get(columnIndex-1);
+            HashMap<String,String> column = this.translations.get(lang);
+            value = column.get(this.mergedKeys.get(rowIndex));
+        }
+
+        return value == null ? "" : value;
     }
 
     @Override
