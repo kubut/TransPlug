@@ -19,14 +19,13 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
     private JLabel no_config_text;
     private JButton settings;
     private JTable translationsTable;
-    private JLabel test;
 
     private Project project;
+    private TransTableModel transTableModel;
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         this.project = project;
-        this.syncLayout();
 
         this.settings.addActionListener(new ActionListener() {
             @Override
@@ -35,6 +34,8 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
             }
         });
         this.settings.setText(Text.SETTINGS);
+
+        this.syncLayout();
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(this.panel, "", false);
@@ -50,7 +51,9 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
         FilesService filesService = FilesService.getInstance(this.project);
 
         if(filesService.isCorrectPath()){
-            this.test.setText("Jest tłumaczenie! :D");
+            this.transTableModel = new TransTableModel(filesService);
+
+            this.translationsTable.setModel(this.transTableModel);
             this.translationPanel.setVisible(true);
             this.noTranslationPanel.setVisible(false);
         } else {
