@@ -1,12 +1,20 @@
 import com.google.common.io.Files;
 import com.google.gson.JsonParser;
+import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.ide.util.PropertiesComponent;
 import com.google.gson.JsonObject;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.sun.istack.internal.Nullable;
 import groovy.json.internal.Charsets;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -62,6 +70,41 @@ public class FilesService {
             return null;
         }
 
+    }
+
+    public void saveFile(String lang, String content){
+        String path = this.project.getBasePath() + "/" + this.propertiesComponent.getValue("transPath", "");
+        path = path+"/locale-"+lang+".json";
+
+        File file = new File(path);
+
+        if(!file.exists()){
+            try{
+                file.createNewFile();
+            } catch (Exception e){
+                return;
+            }
+        }
+
+        try{
+            PrintWriter writer = new PrintWriter(path, "UTF-8");
+            writer.write(content);
+            writer.close();
+        } catch (Exception e){
+            return;
+        }
+
+        VirtualFileManager.getInstance().syncRefresh();
+        final VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(new File(path));
+        final PsiFile psiFile = PsiManager.getInstance(this.project).findFile(vFile);
+        ReformatCodeProcessor processor = new ReformatCodeProcessor(psiFile, false);
+        processor.setPostRunnable(new Runnable() {
+            @Override
+            public void run() {
+                FileDocumentManager.getInstance().saveDocumentAsIs(FileDocumentManager.getInstance().getDocument(vFile));
+            }
+        });
+        processor.run();
     }
 
     private void loadFiles(String path){

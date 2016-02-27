@@ -11,18 +11,18 @@ import java.util.LinkedHashMap;
  */
 public class Tree {
     public class Node{
-        private String key;
         private int level;
         private boolean isLeaf;
         private String path;
         private Color color;
+        private Tree tree;
 
-        public Node(String key, int level, boolean isLeaf, String path){
-            this.key = key;
+        public Node(Tree tree, int level, boolean isLeaf, String path){
             this.level = level;
             this.isLeaf = isLeaf;
             this.path = path;
             this.color = isLeaf ? ColorValue.leafColor : ColorValue.nodeColor;
+            this.tree = tree;
         }
 
         public String getPath() {
@@ -30,7 +30,11 @@ public class Tree {
         }
 
         public String getKey() {
-            return key;
+            return tree.key;
+        }
+
+        public String getValue() {
+            return tree.value;
         }
 
         public int getLevel() {
@@ -46,69 +50,106 @@ public class Tree {
         }
     }
 
-    private String key;
+    private String key = null;
+    private String value = null;
     private LinkedHashMap<String, Tree> children;
-    private Tree parent;
-    private int size = 0;
-    private static int searchIndex = 0;
 
-    public Tree(@Nullable String key, @Nullable Tree parent) {
-        this.key = key;
+    public Tree(){
         this.children = new LinkedHashMap<>();
-        this.parent = parent;
     }
 
-    public void add(String key){
+    public Tree(@NotNull String key, @NotNull String value) {
+        this.key = key;
+        this.children = new LinkedHashMap<>();
+        this.value = value;
+    }
+
+    public void add(String key, String value){
         String childKey = this.getChildKey(key);
         String grandchildrenKey = this.getGrandchildrenKey(key);
 
         if(childKey == null){
-            this.addChild(key, new Tree(key, this));
+            this.addChild(key, new Tree(key, value));
         } else {
             Tree childTree = this.children.get(childKey);
 
             if(childTree == null){
-                this.addChild(childKey, new Tree(childKey, this));
+                this.addChild(childKey, new Tree(childKey, value));
                 childTree = this.children.get(childKey);
             }
 
             if(grandchildrenKey != null){
-                childTree.add(grandchildrenKey);
+                childTree.add(grandchildrenKey, value);
             }
         }
     }
 
-    @Nullable
-    public Node getKeyByIndex(final int index){
-        searchIndex = index;
-        return this.getKeyByIndex("", 0);
-    }
-
-    // TODO: change it to valid json
     public String flatToString(){
-        String flatted = this.key == null ? "{" : "\"" +this.key + "\" : {";
-        Iterator<Tree> it = this.children.values().iterator();
-        while (it.hasNext()){
-            flatted += it.next().flatToString();
-        }
-        flatted += " }, \n";
-
-        return flatted;
+        return this.flatToString(true);
     }
 
     public ArrayList<Node> flatToArrayList(){
         return this.flatToArrayList(0, "");
     }
 
-    public void incSize(){
-        this.size++;
-        if(this.parent != null){
-            this.parent.incSize();
+    @Nullable
+    public String getValueByPath(@NotNull String path){
+        int lastDotIndex = path.lastIndexOf(".");
+
+        if(lastDotIndex < 0){
+            Tree child = this.children.get(path);
+
+            return child == null ? null : child.value;
+        } else {
+            String childKey = path.substring(0, path.indexOf("."));
+            String grandchildKey = path.substring(path.indexOf(".")+1);
+            Tree child = this.children.get(childKey);
+            if(child == null){
+                return null;
+            }
+            return child.getValueByPath(grandchildKey);
         }
     }
 
-    public int getSize(){
-        return this.size;
+    public void editValueByPath(@NotNull String path, @NotNull String value){
+        int lastDotIndex = path.lastIndexOf(".");
+
+        if(lastDotIndex < 0){
+            Tree child = this.children.get(path);
+            if(child == null){
+                this.children.put(path, new Tree(path, value));
+            }
+            this.children.get(path).value = value;
+        } else {
+            String childKey = path.substring(0, path.indexOf("."));
+            String grandchildKey = path.substring(path.indexOf(".")+1);
+            Tree child = this.children.get(childKey);
+            if(child != null){
+                child.editValueByPath(grandchildKey, value);
+            } else {
+                this.add(path, value);
+            }
+        }
+    }
+
+    private String flatToString(boolean end){
+        String flatted;
+        boolean isLeaf = this.children.isEmpty();
+
+        if(isLeaf){
+            flatted = "\"" + this.key +"\" : \""+ this.value + "\"";
+        } else {
+            flatted = this.key == null ? "{\n" : "\"" +this.key + "\" : {\n";
+            Iterator<Tree> it = this.children.values().iterator();
+            while (it.hasNext()){
+                flatted += it.next().flatToString(!it.hasNext());
+            }
+            flatted += "}";
+        }
+
+        flatted += end ? "\n" : ",\n";
+
+        return flatted;
     }
 
     private ArrayList<Node> flatToArrayList(int level, @NotNull String path){
@@ -116,7 +157,7 @@ public class Tree {
 
         if(this.key != null){
             path = path.isEmpty() ? this.key : path + "." + this.key;
-            Node node = new Node(this.key, level, this.children.isEmpty(), path);
+            Node node = new Node(this, level, this.children.isEmpty(), path);
             flatted.add(node);
         }
 
@@ -128,30 +169,6 @@ public class Tree {
         }
 
         return flatted;
-    }
-
-    @Nullable
-    private Node getKeyByIndex(@Nullable  String path, int level){
-        path = path == null ? "" : path;
-
-        if(searchIndex == 0){
-            path = path.isEmpty() ? this.key : path + "." + this.key;
-            return new Node(this.key, level, this.children.isEmpty(), path);
-        }
-
-        level++;
-
-        Iterator<Tree> it = this.children.values().iterator();
-        while (it.hasNext()){
-            searchIndex--;
-            Node node = it.next().getKeyByIndex(path.isEmpty() ? this.key : path+"."+this.key, level);
-
-            if(node != null){
-                return node;
-            }
-        }
-
-        return null;
     }
 
     @Nullable
@@ -167,7 +184,6 @@ public class Tree {
     private void addChild(String key, Tree child){
         if(this.children.get(key) == null){
             this.children.put(key, child);
-            this.incSize();
         }
     }
 }

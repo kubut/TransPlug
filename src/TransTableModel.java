@@ -9,7 +9,7 @@ import java.util.*;
 public class TransTableModel implements javax.swing.table.TableModel{
     private ArrayList<String> languages;
     private FilesService filesService;
-    private HashMap<String, HashMap<String, String>> translations;
+    private HashMap<String, Tree> translations;
     private ArrayList<Tree.Node> mergedKeys;
 
     public TransTableModel(FilesService filesService){
@@ -42,7 +42,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+        return (columnIndex != 0) && this.mergedKeys.get(rowIndex).isLeaf();
     }
 
     @Override
@@ -52,14 +52,14 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
         if(columnIndex == 0){
             value = new String(new char[node.getLevel()-1]).replace("\0", "     ");
-            value += node.getKey();
+            value += node.getValue();
         } else {
             String lang = this.languages.get(columnIndex-1);
-            HashMap<String,String> column = this.translations.get(lang);
+            Tree column = this.translations.get(lang);
             if(!node.isLeaf()){
                 value = "";
             } else {
-                value = column.get(node.getPath());
+                value = column.getValueByPath(node.getPath());
             }
         }
 
@@ -68,7 +68,11 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-
+        String lang = this.languages.get(columnIndex-1);
+        Tree column = this.translations.get(lang);
+        Tree.Node node = this.mergedKeys.get(rowIndex);
+        column.editValueByPath(node.getPath(), (String)aValue);
+        this.filesService.saveFile(lang, column.flatToString());
     }
 
     @Override
@@ -95,7 +99,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
             }
         }
 
-        this.mergedKeys = filesParserModel.getKeysTree().flatToArrayList();
+        this.mergedKeys = FilesParserModel.keysTree.flatToArrayList();
     }
 
     public TranslationState getCellState(int rowIndex, int columnIndex){
