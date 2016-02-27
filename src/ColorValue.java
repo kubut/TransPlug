@@ -7,4 +7,5 @@ public class ColorValue {
     public final static Color leafColor = new Color(77, 77, 77);
     public final static Color nodeColor = new Color(60, 60, 60);
     public final static Color incompliteNodeColor = new Color(173,48,51);
+    public final static Color emptyNodeColor = new Color(173, 136, 79);
 }

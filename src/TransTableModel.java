@@ -1,7 +1,6 @@
 import com.google.gson.JsonObject;
 
 import javax.swing.event.TableModelListener;
-import java.awt.*;
 import java.util.*;
 
 /**
@@ -74,7 +73,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
             }
         }
 
-        return value == null ? "" : value;
+        return value;
     }
 
     @Override
@@ -92,22 +91,23 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     }
 
-    public Color getCellColor(int rowIndex, int columnIndex){
+    public TranslationState getCellState(int rowIndex, int columnIndex){
         Tree.Node node = this.mergedKeys.get(rowIndex);
-        Color color = null;
+        TranslationState state = null;
 
         if(columnIndex == 0 || !node.isLeaf()){
-            color = node.getColor();
+            state = new TranslationState(node.getColor(), null);
         } else if(columnIndex > 0 && node.isLeaf()){
-            String lang = this.languages.get(columnIndex-1);
-            HashMap<String,String> column = this.translations.get(lang);
-            if(column.get(node.getPath()) == null){
-                color = ColorValue.incompliteNodeColor;
+            String cellValue = (String)this.getValueAt(rowIndex, columnIndex);
+            if(cellValue == null){
+                state = new TranslationState(ColorValue.incompliteNodeColor, Text.TRANS_STATE_INCOMPLITE);
+            } else if(cellValue.isEmpty()){
+                state = new TranslationState(ColorValue.emptyNodeColor, Text.TRANS_STATE_EMPTY);
             } else {
-                color = this.mergedKeys.get(rowIndex).getColor();
+                state = new TranslationState(this.mergedKeys.get(rowIndex).getColor(), null);
             }
         }
 
-        return color;
+        return state;
     }
 }

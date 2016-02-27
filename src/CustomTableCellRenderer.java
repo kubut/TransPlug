@@ -8,11 +8,17 @@ import java.awt.*;
 public class CustomTableCellRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        JLabel c = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
         TransTableModel tableModel = (TransTableModel)table.getModel();
+        TranslationState state = tableModel.getCellState(row, column);
+        setBackground(state.getColor());
 
-        setBackground(tableModel.getCellColor(row, column));
+        if(state.getText() != null){
+            c.setToolTipText(state.getText());
+        } else {
+            c.setToolTipText(c.getText());
+        }
 
         return this;
     }
