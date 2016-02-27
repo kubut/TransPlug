@@ -17,17 +17,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
         this.translations = new HashMap<>();
 
         this.languages = new ArrayList<>();
-        this.languages.addAll(this.filesService.getLanguagesList());
-
-        FilesParserModel filesParserModel = new FilesParserModel();
-        for(String lang : this.languages){
-            JsonObject json = this.filesService.getJsonByLanguage(lang);
-            if(json != null){
-                translations.put(lang, filesParserModel.parseJson(this.filesService.getJsonByLanguage(lang)));
-            }
-        }
-
-        this.mergedKeys = filesParserModel.getKeysTree().flatToArrayList();
+        this.updateData();
     }
 
     @Override
@@ -89,6 +79,23 @@ public class TransTableModel implements javax.swing.table.TableModel{
     @Override
     public void removeTableModelListener(TableModelListener l) {
 
+    }
+
+    public void updateData(){
+        this.languages.clear();
+        this.translations.clear();
+
+        this.languages.addAll(this.filesService.getLanguagesList());
+
+        FilesParserModel filesParserModel = new FilesParserModel();
+        for(String lang : this.languages){
+            JsonObject json = this.filesService.getJsonByLanguage(lang);
+            if(json != null){
+                translations.put(lang, filesParserModel.parseJson(this.filesService.getJsonByLanguage(lang)));
+            }
+        }
+
+        this.mergedKeys = filesParserModel.getKeysTree().flatToArrayList();
     }
 
     public TranslationState getCellState(int rowIndex, int columnIndex){
