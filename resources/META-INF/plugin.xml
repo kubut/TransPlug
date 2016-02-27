@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>pl.jgorowski.transplug</id>
   <name>TransPlug</name>
-  <version>1.0</version>
+  <version>0.1.0</version>
   <vendor email="ja@jgorowskipl" url="http://www.jgorowski.pl">Spline Software</vendor>
 
   <description>Simple plugin for i18n</description>

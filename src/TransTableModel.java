@@ -10,7 +10,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
     private ArrayList<String> languages;
     private FilesService filesService;
     private HashMap<String, HashMap<String, String>> translations;
-    private ArrayList<String> mergedKeys;
+    private Tree mergedKeysTree;
 
     public TransTableModel(FilesService filesService){
         this.filesService = filesService;
@@ -26,12 +26,13 @@ public class TransTableModel implements javax.swing.table.TableModel{
                 translations.put(lang, filesParserModel.parseJson(this.filesService.getJsonByLanguage(lang)));
             }
         }
-        this.mergedKeys = filesParserModel.getKeys();
+
+        this.mergedKeysTree = filesParserModel.getKeysTree();
     }
 
     @Override
     public int getRowCount() {
-        return this.mergedKeys.size();
+        return this.mergedKeysTree.getSize();
     }
 
     @Override
@@ -59,11 +60,18 @@ public class TransTableModel implements javax.swing.table.TableModel{
         String value;
 
         if(columnIndex == 0){
-           value = this.mergedKeys.get(rowIndex);
+            Tree.Node node = this.mergedKeysTree.getKeyByIndex(rowIndex+1);
+            value = new String(new char[node.getLevel()-1]).replace("\0", "--");
+            value += node.getKey();
         } else {
             String lang = this.languages.get(columnIndex-1);
             HashMap<String,String> column = this.translations.get(lang);
-            value = column.get(this.mergedKeys.get(rowIndex));
+            Tree.Node keyNode = this.mergedKeysTree.getKeyByIndex(rowIndex+1);
+            if(!keyNode.isLeaf()){
+                value = "";
+            } else {
+                value = column.get(keyNode.getPath());
+            }
         }
 
         return value == null ? "" : value;
