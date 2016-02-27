@@ -1,5 +1,8 @@
+import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -12,12 +15,14 @@ public class Tree {
         private int level;
         private boolean isLeaf;
         private String path;
+        private Color color;
 
         public Node(String key, int level, boolean isLeaf, String path){
             this.key = key;
             this.level = level;
             this.isLeaf = isLeaf;
             this.path = path;
+            this.color = isLeaf ? ColorValue.leafColor : ColorValue.nodeColor;
         }
 
         public String getPath() {
@@ -35,6 +40,10 @@ public class Tree {
         public boolean isLeaf() {
             return isLeaf;
         }
+
+        public Color getColor() {
+            return color;
+        }
     }
 
     private String key;
@@ -42,7 +51,6 @@ public class Tree {
     private Tree parent;
     private int size = 0;
     private static int searchIndex = 0;
-    private static int searchLevel = 0;
 
     public Tree(@Nullable String key, @Nullable Tree parent) {
         this.key = key;
@@ -72,21 +80,24 @@ public class Tree {
 
     @Nullable
     public Node getKeyByIndex(final int index){
-        searchLevel = 0;
         searchIndex = index;
-        return this.getKeyByIndex("");
+        return this.getKeyByIndex("", 0);
     }
 
     // TODO: change it to valid json
-    public String flat(){
+    public String flatToString(){
         String flatted = this.key == null ? "{" : "\"" +this.key + "\" : {";
         Iterator<Tree> it = this.children.values().iterator();
         while (it.hasNext()){
-            flatted += it.next().flat();
+            flatted += it.next().flatToString();
         }
         flatted += " }, \n";
 
         return flatted;
+    }
+
+    public ArrayList<Node> flatToArrayList(){
+        return this.flatToArrayList(0, "");
     }
 
     public void incSize(){
@@ -100,28 +111,46 @@ public class Tree {
         return this.size;
     }
 
+    private ArrayList<Node> flatToArrayList(int level, @NotNull String path){
+        ArrayList<Node> flatted = new ArrayList<>();
+
+        if(this.key != null){
+            path = path.isEmpty() ? this.key : path + "." + this.key;
+            Node node = new Node(this.key, level, this.children.isEmpty(), path);
+            flatted.add(node);
+        }
+
+        level++;
+
+        Iterator<Tree> it = this.children.values().iterator();
+        while (it.hasNext()){
+            flatted.addAll(it.next().flatToArrayList(level, path));
+        }
+
+        return flatted;
+    }
+
     @Nullable
-    private Node getKeyByIndex(@Nullable  String path){
+    private Node getKeyByIndex(@Nullable  String path, int level){
         path = path == null ? "" : path;
 
         if(searchIndex == 0){
             path = path.isEmpty() ? this.key : path + "." + this.key;
-            return new Node(this.key, searchLevel, this.children.isEmpty(), path);
+            return new Node(this.key, level, this.children.isEmpty(), path);
         }
 
-        searchLevel++;
+        level++;
 
         Iterator<Tree> it = this.children.values().iterator();
         while (it.hasNext()){
             searchIndex--;
-            Node node = it.next().getKeyByIndex(path.isEmpty() ? this.key : path+"."+this.key);
+            Node node = it.next().getKeyByIndex(path.isEmpty() ? this.key : path+"."+this.key, level);
 
             if(node != null){
                 return node;
             }
         }
 
-        searchLevel--;
         return null;
     }
 

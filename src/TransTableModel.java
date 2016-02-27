@@ -1,6 +1,7 @@
 import com.google.gson.JsonObject;
 
 import javax.swing.event.TableModelListener;
+import java.awt.*;
 import java.util.*;
 
 /**
@@ -10,7 +11,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
     private ArrayList<String> languages;
     private FilesService filesService;
     private HashMap<String, HashMap<String, String>> translations;
-    private Tree mergedKeysTree;
+    private ArrayList<Tree.Node> mergedKeys;
 
     public TransTableModel(FilesService filesService){
         this.filesService = filesService;
@@ -27,12 +28,12 @@ public class TransTableModel implements javax.swing.table.TableModel{
             }
         }
 
-        this.mergedKeysTree = filesParserModel.getKeysTree();
+        this.mergedKeys = filesParserModel.getKeysTree().flatToArrayList();
     }
 
     @Override
     public int getRowCount() {
-        return this.mergedKeysTree.getSize();
+        return this.mergedKeys.size();
     }
 
     @Override
@@ -57,20 +58,19 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        String value;
+        String value = null;
+        Tree.Node node = this.mergedKeys.get(rowIndex);
 
         if(columnIndex == 0){
-            Tree.Node node = this.mergedKeysTree.getKeyByIndex(rowIndex+1);
-            value = new String(new char[node.getLevel()-1]).replace("\0", "--");
+            value = new String(new char[node.getLevel()-1]).replace("\0", "     ");
             value += node.getKey();
         } else {
             String lang = this.languages.get(columnIndex-1);
             HashMap<String,String> column = this.translations.get(lang);
-            Tree.Node keyNode = this.mergedKeysTree.getKeyByIndex(rowIndex+1);
-            if(!keyNode.isLeaf()){
+            if(!node.isLeaf()){
                 value = "";
             } else {
-                value = column.get(keyNode.getPath());
+                value = column.get(node.getPath());
             }
         }
 
@@ -90,5 +90,24 @@ public class TransTableModel implements javax.swing.table.TableModel{
     @Override
     public void removeTableModelListener(TableModelListener l) {
 
+    }
+
+    public Color getCellColor(int rowIndex, int columnIndex){
+        Tree.Node node = this.mergedKeys.get(rowIndex);
+        Color color = null;
+
+        if(columnIndex == 0 || !node.isLeaf()){
+            color = node.getColor();
+        } else if(columnIndex > 0 && node.isLeaf()){
+            String lang = this.languages.get(columnIndex-1);
+            HashMap<String,String> column = this.translations.get(lang);
+            if(column.get(node.getPath()) == null){
+                color = ColorValue.incompliteNodeColor;
+            } else {
+                color = this.mergedKeys.get(rowIndex).getColor();
+            }
+        }
+
+        return color;
     }
 }

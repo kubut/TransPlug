@@ -56,6 +56,8 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
             this.translationsTable.setModel(this.transTableModel);
             this.translationPanel.setVisible(true);
             this.noTranslationPanel.setVisible(false);
+            this.translationsTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
+            this.translationsTable.setRowHeight(25);
         } else {
             this.no_config_text.setText(Text.NO_FILES);
             this.noTranslationPanel.setVisible(true);
