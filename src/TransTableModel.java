@@ -9,24 +9,15 @@ import java.util.*;
 public class TransTableModel implements javax.swing.table.TableModel{
     private ArrayList<String> languages;
     private FilesService filesService;
-    private HashMap<String, HashMap<String, String>> translations;
-    private ArrayList<String> mergedKeys;
+    private HashMap<String, Tree> translations;
+    private ArrayList<Tree.Node> mergedKeys;
 
     public TransTableModel(FilesService filesService){
         this.filesService = filesService;
         this.translations = new HashMap<>();
 
         this.languages = new ArrayList<>();
-        this.languages.addAll(this.filesService.getLanguagesList());
-
-        FilesParserModel filesParserModel = new FilesParserModel();
-        for(String lang : this.languages){
-            JsonObject json = this.filesService.getJsonByLanguage(lang);
-            if(json != null){
-                translations.put(lang, filesParserModel.parseJson(this.filesService.getJsonByLanguage(lang)));
-            }
-        }
-        this.mergedKeys = filesParserModel.getKeys();
+        this.updateData();
     }
 
     @Override
@@ -51,27 +42,37 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+        return (columnIndex != 0) && this.mergedKeys.get(rowIndex).isLeaf();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        String value;
+        String value = null;
+        Tree.Node node = this.mergedKeys.get(rowIndex);
 
         if(columnIndex == 0){
-           value = this.mergedKeys.get(rowIndex);
+            value = new String(new char[node.getLevel()-1]).replace("\0", "     ");
+            value += node.getValue();
         } else {
             String lang = this.languages.get(columnIndex-1);
-            HashMap<String,String> column = this.translations.get(lang);
-            value = column.get(this.mergedKeys.get(rowIndex));
+            Tree column = this.translations.get(lang);
+            if(!node.isLeaf()){
+                value = "";
+            } else {
+                value = column.getValueByPath(node.getPath());
+            }
         }
 
-        return value == null ? "" : value;
+        return value;
     }
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-
+        String lang = this.languages.get(columnIndex-1);
+        Tree column = this.translations.get(lang);
+        Tree.Node node = this.mergedKeys.get(rowIndex);
+        column.editValueByPath(node.getPath(), (String)aValue);
+        this.filesService.saveFile(lang, column.flatToString());
     }
 
     @Override
@@ -82,5 +83,42 @@ public class TransTableModel implements javax.swing.table.TableModel{
     @Override
     public void removeTableModelListener(TableModelListener l) {
 
+    }
+
+    public void updateData(){
+        this.languages.clear();
+        this.translations.clear();
+
+        this.languages.addAll(this.filesService.getLanguagesList());
+
+        FilesParserModel filesParserModel = new FilesParserModel();
+        for(String lang : this.languages){
+            JsonObject json = this.filesService.getJsonByLanguage(lang);
+            if(json != null){
+                translations.put(lang, filesParserModel.parseJson(this.filesService.getJsonByLanguage(lang)));
+            }
+        }
+
+        this.mergedKeys = FilesParserModel.keysTree.flatToArrayList();
+    }
+
+    public TranslationState getCellState(int rowIndex, int columnIndex){
+        Tree.Node node = this.mergedKeys.get(rowIndex);
+        TranslationState state = null;
+
+        if(columnIndex == 0 || !node.isLeaf()){
+            state = new TranslationState(node.getColor(), null);
+        } else if(columnIndex > 0 && node.isLeaf()){
+            String cellValue = (String)this.getValueAt(rowIndex, columnIndex);
+            if(cellValue == null){
+                state = new TranslationState(ColorValue.incompliteNodeColor, Text.TRANS_STATE_INCOMPLITE);
+            } else if(cellValue.isEmpty()){
+                state = new TranslationState(ColorValue.emptyNodeColor, Text.TRANS_STATE_EMPTY);
+            } else {
+                state = new TranslationState(this.mergedKeys.get(rowIndex).getColor(), null);
+            }
+        }
+
+        return state;
     }
 }

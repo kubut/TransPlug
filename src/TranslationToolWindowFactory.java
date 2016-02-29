@@ -1,3 +1,5 @@
+import com.intellij.ide.actions.SaveAllAction;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -19,6 +21,7 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
     private JLabel no_config_text;
     private JButton settings;
     private JTable translationsTable;
+    private JButton reload;
 
     private Project project;
     private TransTableModel transTableModel;
@@ -35,6 +38,15 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
         });
         this.settings.setText(Text.SETTINGS);
 
+        this.reload.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ApplicationManager.getApplication().saveAll();
+                TranslationToolWindowFactory.this.syncLayout();
+            }
+        });
+        this.reload.setText(Text.RELOAD);
+
         this.syncLayout();
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
@@ -44,6 +56,7 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
 
     @Override
     public void okCallback(){
+        ApplicationManager.getApplication().saveAll();
         this.syncLayout();
     }
 
@@ -56,6 +69,8 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
             this.translationsTable.setModel(this.transTableModel);
             this.translationPanel.setVisible(true);
             this.noTranslationPanel.setVisible(false);
+            this.translationsTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
+            this.translationsTable.setRowHeight(25);
         } else {
             this.no_config_text.setText(Text.NO_FILES);
             this.noTranslationPanel.setVisible(true);
