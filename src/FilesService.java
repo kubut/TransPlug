@@ -11,10 +11,10 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.sun.istack.internal.Nullable;
-import groovy.json.internal.Charsets;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -63,7 +63,7 @@ public class FilesService {
         try{
             JsonParser parser = new JsonParser();
             File file = this.files.get(language);
-            String fileContent = Files.toString(file, Charsets.UTF_8);
+            String fileContent = Files.toString(file, Charset.forName("UTF-8"));
             JsonObject jsonObject = parser.parse(fileContent).getAsJsonObject();
             return jsonObject;
         } catch (Exception e){
@@ -129,7 +129,11 @@ public class FilesService {
 
     private String getFileLanguage(String filename){
         try {
-            String language = filename.substring(filename.lastIndexOf("locale-") + 7);
+            int localeIndex = filename.lastIndexOf("locale-");
+
+            if(localeIndex < 0) throw new Exception();
+
+            String language = filename.substring(localeIndex + 7);
             language = language.substring(0, language.lastIndexOf("."));
 
             if(this.files.get(language) != null){
