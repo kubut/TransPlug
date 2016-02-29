@@ -1,14 +1,43 @@
 <idea-plugin version="2">
   <id>pl.jgorowski.transplug</id>
   <name>TransPlug</name>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <vendor email="ja@jgorowskipl" url="http://www.jgorowski.pl">Spline Software</vendor>
 
-  <description>Simple plugin for i18n</description>
+  <description><![CDATA[
+   <p><b>**TransPlug**<b> is a simple plugin for JetBrains IDE (PhpStorm, WebStorm etc.)
+    It provides easy way to manage translation files in your project. <p>
 
-  <change-notes>
-    First release
-  </change-notes>
+    <h4>How to use</h4>
+    1. Prepare translation files. All translations should be in one dir. Filename should be like `locale-hereLangCode.json` for example `locale-en.json`
+    2. Install plugin from JetBrains plugin repository.
+    3. To open plugin window use key shortcut `ctrl+alt+shift+k`, or click on tab on bottom of the screen.
+    4. Click `settings` button and pass path for dir with translations (relative to project root).
+    5. Enjoy!
+
+    <h4>Features</h4>
+    <ul>
+      <li> JSON files support </li>
+      <li> All translations shown in readable table </li>
+      <li> Incomplete translations are marked </li>
+      <li> Translation can be edited </li>
+    </li>
+
+    See me on <a href="https://github.com/kubut/TransPlug">Github</a>
+  ]]></description>
+
+  <change-notes><![CDATA[
+    <b>0.2.0</b>
+    <ul>
+      <li> Incomplete translations are marked</li>
+      <li> Translation can be edited</li>
+    </ul>
+
+    <b>0.1.0</b>
+    <ul>
+      <li> All translations shown in readable table</li>
+    </ul>
+  ]]></change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <idea-version since-build="139.0"/>
