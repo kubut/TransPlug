@@ -41,7 +41,7 @@ public class FilesService {
         this.files = new HashMap<>();
     }
 
-    public boolean isCorrectPath(){
+    public boolean loadFiles(){
         String path = this.project.getBasePath() + "/" + this.propertiesComponent.getValue("transPath", "");
         this.files.clear();
 
@@ -98,6 +98,7 @@ public class FilesService {
         final VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(new File(path));
         final PsiFile psiFile = PsiManager.getInstance(this.project).findFile(vFile);
         ReformatCodeProcessor processor = new ReformatCodeProcessor(psiFile, false);
+        processor.preprocessFile(psiFile, false);
         processor.setPostRunnable(new Runnable() {
             @Override
             public void run() {

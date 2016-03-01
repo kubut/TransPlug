@@ -8,6 +8,7 @@ import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -22,6 +23,7 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
     private JButton settings;
     private JTable translationsTable;
     private JButton reload;
+    private JButton add;
 
     private Project project;
     private TransTableModel transTableModel;
@@ -30,6 +32,7 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         this.project = project;
 
+        this.removeActionListeners(this.settings);
         this.settings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -38,6 +41,7 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
         });
         this.settings.setText(Text.SETTINGS);
 
+        this.removeActionListeners(this.reload);
         this.reload.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -63,18 +67,37 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
     public void syncLayout(){
         FilesService filesService = FilesService.getInstance(this.project);
 
-        if(filesService.isCorrectPath()){
-            this.transTableModel = new TransTableModel(filesService);
+        if(filesService.loadFiles()){
+            this.transTableModel = new TransTableModel(filesService, this);
 
             this.translationsTable.setModel(this.transTableModel);
             this.translationPanel.setVisible(true);
             this.noTranslationPanel.setVisible(false);
             this.translationsTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
             this.translationsTable.setRowHeight(25);
+            this.removeActionListeners(this.add);
+            this.add.setVisible(true);
+            this.add.setText(Text.ADD_KEY);
+            this.add.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    new AddDialog(
+                            TranslationToolWindowFactory.this.project,
+                            TranslationToolWindowFactory.this.transTableModel
+                    ).show();
+                }
+            });
         } else {
+            this.add.setVisible(false);
             this.no_config_text.setText(Text.NO_FILES);
             this.noTranslationPanel.setVisible(true);
             this.translationPanel.setVisible(false);
+        }
+    }
+
+    private void removeActionListeners(JButton button){
+        for( ActionListener al : button.getActionListeners() ) {
+            button.removeActionListener( al );
         }
     }
 }

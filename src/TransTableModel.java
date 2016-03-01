@@ -11,9 +11,11 @@ public class TransTableModel implements javax.swing.table.TableModel{
     private FilesService filesService;
     private HashMap<String, Tree> translations;
     private ArrayList<Tree.Node> mergedKeys;
+    private TranslationToolWindowFactory windowFactory;
 
-    public TransTableModel(FilesService filesService){
+    public TransTableModel(FilesService filesService, TranslationToolWindowFactory windowFactory){
         this.filesService = filesService;
+        this.windowFactory = windowFactory;
         this.translations = new HashMap<>();
 
         this.languages = new ArrayList<>();
@@ -85,6 +87,18 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     }
 
+    public void addTranslation(String lang, String key, String value){
+        Tree translation = this.translations.get(lang);
+        translation.add(key, value);
+        this.filesService.saveFile(lang, translation.flatToString());
+    }
+
+    public void reloadData(){
+        this.filesService.loadFiles();
+        updateData();
+        this.windowFactory.syncLayout();
+    }
+
     public void updateData(){
         this.languages.clear();
         this.translations.clear();
@@ -99,7 +113,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
             }
         }
 
-        this.mergedKeys = FilesParserModel.keysTree.flatToArrayList();
+        this.mergedKeys = filesParserModel.getKeysTree().flatToArrayList();
     }
 
     public TranslationState getCellState(int rowIndex, int columnIndex){
@@ -120,5 +134,9 @@ public class TransTableModel implements javax.swing.table.TableModel{
         }
 
         return state;
+    }
+
+    public ArrayList<String> getLanguages(){
+        return this.languages;
     }
 }

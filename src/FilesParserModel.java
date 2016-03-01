@@ -7,7 +7,11 @@ import java.util.Map;
  * Created by kubut on 21.02.2016
  */
 public class FilesParserModel {
-    public static Tree keysTree = new Tree();
+    private static Tree keysTree;
+
+    public FilesParserModel(){
+        keysTree = new Tree();
+    }
 
     public Tree parseJson(JsonObject json) {
         Tree tree = new Tree();
