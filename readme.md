@@ -16,4 +16,8 @@ Features
 * JSON files support
 * All translations shown in readable table
 * Incomplete translations are marked
-* Translation can be edited
+* Translation can be added and edited
+
+Known issues
+--
+* Plugin doesn't work properly when IDE has opened more then one project
