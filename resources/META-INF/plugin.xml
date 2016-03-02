@@ -23,6 +23,11 @@
       <li> Translation can be added and edited </li>
     </li>
 
+    <h4>Known issues</h4>
+    <ul>
+      <li> Plugin doesn't work properly when IDE has opened more then one project </li>
+    </ul>
+
     See me on <a href="https://github.com/kubut/TransPlug">Github</a>
   ]]></description>
 
