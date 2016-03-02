@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>pl.jgorowski.transplug</id>
   <name>TransPlug</name>
-  <version>0.3.0</version>
+  <version>0.3.1</version>
   <vendor email="ja@jgorowskipl" url="http://www.jgorowski.pl">Spline Software</vendor>
 
   <description><![CDATA[
@@ -9,11 +9,13 @@
     It provides easy way to manage translation files in your project. <p>
 
     <h4>How to use</h4>
-    1. Prepare translation files. All translations should be in one dir. Filename should be like `locale-hereLangCode.json` for example `locale-en.json`<br>
-    2. Install plugin from JetBrains plugin repository.<br>
-    3. To open plugin window use key shortcut `ctrl+alt+shift+k`, or click on tab on bottom of the screen.<br>
-    4. Click `settings` button and pass path for dir with translations (relative to project root).<br>
-    5. Enjoy!
+    <ol>
+      <li> Prepare translation files. All translations should be in one dir. Filename should be like `locale-hereLangCode.json` for example `locale-en.json`</li>
+      <li> Install plugin from JetBrains plugin repository.</li>
+      <li> To open plugin window use key shortcut `ctrl+alt+shift+k`, or click on tab on bottom of the screen.</li>
+      <li> Click `settings` button and pass path for dir with translations (relative to project root).</li>
+      <li> Enjoy!</li>
+    </ol>
 
     <h4>Features</h4>
     <ul>
@@ -32,7 +34,7 @@
   ]]></description>
 
   <change-notes><![CDATA[
-    <b>0.3.0</b>
+    <b>0.3.1</b>
     <ul>
       <li> Translation can be added</li>
       <li> Some little fixes</li>
