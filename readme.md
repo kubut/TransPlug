@@ -16,4 +16,4 @@ Features
 * JSON files support
 * All translations shown in readable table
 * Incomplete translations are marked
-* Translation can be edited
+* Translation can be added and edited
