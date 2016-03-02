@@ -1,4 +1,5 @@
-import com.intellij.ide.actions.SaveAllAction;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -8,7 +9,6 @@ import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -30,6 +30,8 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        Notifications.Bus.register(Text.TOAST_RELOAD_TITLE, NotificationDisplayType.BALLOON);
+
         this.project = project;
 
         this.removeActionListeners(this.settings);
@@ -81,10 +83,12 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
             this.add.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    new AddDialog(
-                            TranslationToolWindowFactory.this.project,
-                            TranslationToolWindowFactory.this.transTableModel
-                    ).show();
+                    if(TranslationToolWindowFactory.this.transTableModel.synchronizeStatus()){
+                        new AddDialog(
+                                TranslationToolWindowFactory.this.project,
+                                TranslationToolWindowFactory.this.transTableModel
+                        ).show();
+                    }
                 }
             });
         } else {

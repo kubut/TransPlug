@@ -26,6 +26,7 @@ public class FilesService {
     private PropertiesComponent propertiesComponent;
     private HashMap<String, File> files;
     private static FilesService instance;
+    private long timestamp;
 
     public static FilesService getInstance(Project project){
         if(instance == null){
@@ -42,11 +43,12 @@ public class FilesService {
     }
 
     public boolean loadFiles(){
-        String path = this.project.getBasePath() + "/" + this.propertiesComponent.getValue("transPath", "");
+        String path = this.getDirPath();
         this.files.clear();
 
         try {
             this.loadFiles(path);
+            this.timestamp = System.currentTimeMillis();
         } catch (Exception e){
             return false;
         }
@@ -103,9 +105,27 @@ public class FilesService {
             @Override
             public void run() {
                 FileDocumentManager.getInstance().saveDocumentAsIs(FileDocumentManager.getInstance().getDocument(vFile));
+                FilesService.this.timestamp = System.currentTimeMillis();
             }
         });
         processor.run();
+    }
+
+    public boolean isActual(){
+        String path = this.getDirPath();
+        File dir = new File(path);
+        if(dir.isDirectory()){
+            for(File file : dir.listFiles()){
+                if(!file.isDirectory() && this.getFileExtension(file).equals("json")){
+                    if (file.lastModified() > this.timestamp){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        return false;
     }
 
     private void loadFiles(String path){
@@ -117,6 +137,10 @@ public class FilesService {
                 }
             }
         }
+    }
+
+    private String getDirPath(){
+        return this.project.getBasePath() + "/" + this.propertiesComponent.getValue("transPath", "");
     }
 
     private String getFileExtension(File file) {

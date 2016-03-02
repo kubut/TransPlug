@@ -1,4 +1,7 @@
 import com.google.gson.JsonObject;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 
 import javax.swing.event.TableModelListener;
 import java.util.*;
@@ -44,6 +47,9 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
+        if(!this.synchronizeStatus()){
+            return false;
+        }
         return (columnIndex != 0) && this.mergedKeys.get(rowIndex).isLeaf();
     }
 
@@ -138,5 +144,22 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     public ArrayList<String> getLanguages(){
         return this.languages;
+    }
+
+    public boolean synchronizeStatus(){
+        if(!this.filesService.isActual()){
+            Notifications.Bus.notify(
+                    new Notification(
+                            Text.TOAST_RELOAD_TITLE,
+                            Text.TOAST_RELOAD_TITLE,
+                            Text.TOAST_RELOAD_CONTENT,
+                            NotificationType.INFORMATION
+                    )
+            );
+
+            this.reloadData();
+            return false;
+        }
+        return true;
     }
 }
