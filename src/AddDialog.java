@@ -22,9 +22,14 @@ public class AddDialog {
     }
 
     public void show(){
+        this.show("");
+    }
+
+    public void show(String key){
         JPanel panel = new JPanel(new GridLayout(0,1,2,2));
         JLabel label = new JLabel();
         JTextField path = new JTextField();
+        path.setText(key);
 
         label.setText(Text.KEY);
         label.setLabelFor(path);
@@ -70,6 +75,8 @@ public class AddDialog {
     }
 
     private void okAction(String key){
+        if(key.isEmpty()) return;
+
         Iterator<String> iterator = this.tableModel.getLanguages().iterator();
         while (iterator.hasNext()){
             String lang = iterator.next();

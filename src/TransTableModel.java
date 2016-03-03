@@ -101,6 +101,11 @@ public class TransTableModel implements javax.swing.table.TableModel{
         return node.getPath();
     }
 
+    public String getNodePathByRow(int rowIndex){
+        Tree.Node node = this.mergedKeys.get(rowIndex);
+        return node.isLeaf() ? node.getParentPath() : node.getPath();
+    }
+
     public void addTranslation(String lang, String key, String value){
         Tree translation = this.translations.get(lang);
         translation.add(key, value);

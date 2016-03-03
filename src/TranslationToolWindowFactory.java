@@ -73,7 +73,9 @@ public class TranslationToolWindowFactory implements IDialogCallback, ToolWindow
             this.transTableModel = new TransTableModel(filesService, this);
 
             this.translationsTable.setModel(this.transTableModel);
-            this.translationsTable.addMouseListener(new RightClickMenu(this.translationsTable, this.transTableModel));
+            this.translationsTable.addMouseListener(
+                    new RightClickMenu(this.translationsTable, this.transTableModel, this.project)
+            );
             this.translationPanel.setVisible(true);
             this.noTranslationPanel.setVisible(false);
             this.translationsTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer());
