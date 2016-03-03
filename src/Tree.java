@@ -48,6 +48,12 @@ public class Tree {
         public Color getColor() {
             return color;
         }
+
+        @Nullable
+        public String getParentPath(){
+            int dotIndex = this.path.lastIndexOf(".");
+            return dotIndex < 0 ? null : path.substring(0, dotIndex);
+        }
     }
 
     private String key = null;

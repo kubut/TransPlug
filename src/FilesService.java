@@ -27,6 +27,7 @@ public class FilesService {
     private HashMap<String, File> files;
     private static FilesService instance;
     private long timestamp;
+    private boolean isBusy = false;
 
     public static FilesService getInstance(Project project){
         if(instance == null){
@@ -75,6 +76,8 @@ public class FilesService {
     }
 
     public void saveFile(String lang, String content){
+        this.isBusy = true;
+
         String path = this.project.getBasePath() + "/" + this.propertiesComponent.getValue("transPath", "");
         path = path+"/locale-"+lang+".json";
 
@@ -106,6 +109,7 @@ public class FilesService {
             public void run() {
                 FileDocumentManager.getInstance().saveDocumentAsIs(FileDocumentManager.getInstance().getDocument(vFile));
                 FilesService.this.timestamp = System.currentTimeMillis();
+                FilesService.this.isBusy = false;
             }
         });
         processor.run();
@@ -126,6 +130,10 @@ public class FilesService {
         }
 
         return false;
+    }
+
+    public boolean isBusy(){
+        return this.isBusy;
     }
 
     private void loadFiles(String path){
