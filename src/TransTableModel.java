@@ -47,7 +47,7 @@ public class TransTableModel implements javax.swing.table.TableModel{
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if(!this.synchronizeStatus()){
+        if(this.filesService.isBusy() || !this.synchronizeStatus()){
             return false;
         }
         return (columnIndex != 0) && this.mergedKeys.get(rowIndex).isLeaf();
@@ -79,8 +79,11 @@ public class TransTableModel implements javax.swing.table.TableModel{
         String lang = this.languages.get(columnIndex-1);
         Tree column = this.translations.get(lang);
         Tree.Node node = this.mergedKeys.get(rowIndex);
-        column.editValueByPath(node.getPath(), (String)aValue);
-        this.filesService.saveFile(lang, column.flatToString());
+
+        if(!aValue.equals(column.getValueByPath(node.getPath()))){
+            column.editValueByPath(node.getPath(), (String)aValue);
+            this.filesService.saveFile(lang, column.flatToString());
+        }
     }
 
     @Override
@@ -91,6 +94,11 @@ public class TransTableModel implements javax.swing.table.TableModel{
     @Override
     public void removeTableModelListener(TableModelListener l) {
 
+    }
+
+    public String getPathByRow(int rowIndex){
+        Tree.Node node = this.mergedKeys.get(rowIndex);
+        return node.getPath();
     }
 
     public void addTranslation(String lang, String key, String value){

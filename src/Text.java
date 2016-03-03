@@ -7,6 +7,7 @@ public class Text {
     public static final String PATH = "Path: ";
     public static final String RELOAD = "Reload";
     public static final String KEY = "Key";
+    public static final String COPY = "Copy key";
     public static final String ADD_KEY = "New translation";
     public static final String TOAST_RELOAD_TITLE = "Synchronization";
     public static final String TOAST_RELOAD_CONTENT = "Files are synchronized";
