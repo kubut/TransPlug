@@ -30,16 +30,12 @@ public class RightClickMenu implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-
+        this.showMenuIfAllowed(e);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        final int row = this.table.rowAtPoint(e.getPoint());
-        final int col = this.table.columnAtPoint(e.getPoint());
-        if((col == 0) && e.isPopupTrigger() && (e.getComponent() instanceof JTable)){
-            this.prepareMenu(row).show(e.getComponent(), e.getX(), e.getY());
-        }
+        this.showMenuIfAllowed(e);
     }
 
     @Override
@@ -50,6 +46,15 @@ public class RightClickMenu implements MouseListener {
     @Override
     public void mouseExited(MouseEvent e) {
 
+    }
+
+    private void showMenuIfAllowed(MouseEvent e) {
+        final int row = this.table.rowAtPoint(e.getPoint());
+        final int col = this.table.columnAtPoint(e.getPoint());
+
+        if((col == 0) && e.isPopupTrigger() && (e.getComponent() instanceof JTable)){
+            this.prepareMenu(row).show(e.getComponent(), e.getX(), e.getY());
+        }
     }
 
     private JPopupMenu prepareMenu(final int rowIndex){
