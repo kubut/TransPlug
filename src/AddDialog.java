@@ -57,12 +57,12 @@ public class AddDialog {
         path.setPreferredSize(new Dimension(200,30));
         panel.setMinimumSize(new Dimension(300,30));
 
-        if(this.prepareDialog(panel).show() == DialogWrapper.OK_EXIT_CODE){
+        if(this.prepareDialog(panel, path).show() == DialogWrapper.OK_EXIT_CODE){
             this.okAction(path.getText());
         }
     }
 
-    private DialogBuilder prepareDialog(JComponent panel){
+    private DialogBuilder prepareDialog(JComponent panel, JComponent focused){
         DialogBuilder builder = new DialogBuilder(this.project);
         builder.setTitle(Text.ADD_KEY);
         builder.removeAllActions();
@@ -70,6 +70,7 @@ public class AddDialog {
         builder.addCancelAction();
         builder.setCenterPanel(panel);
         builder.resizable(false);
+        builder.setPreferredFocusComponent(focused);
 
         return builder;
     }
