@@ -1,5 +1,8 @@
 **TransPlug**
 =============
+
+**I have no time to develop this plugin, so feel free to send pull request to this repo! :)**
+
 **TransPlug** is a simple plugin for JetBrains IDE (PhpStorm, WebStorm etc.)
 It provides easy way to manage translation files in your project.
 
