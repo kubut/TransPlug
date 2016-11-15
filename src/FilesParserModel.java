@@ -26,12 +26,15 @@ public class FilesParserModel {
     private void fillTreeByJsonData(JsonObject json, String prefix, Tree tree){
         for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
             String key = prefix + entry.getKey();
-            keysTree.add(key, entry.getKey());
 
             try {
                 JsonObject subJson = entry.getValue().getAsJsonObject();
+                keysTree.add(key, entry.getKey(), false);
+
                 this.fillTreeByJsonData(subJson, key + ".", tree);
             } catch (Exception e) {
+                keysTree.add(key, entry.getKey(), true);
+
                 tree.add(key, entry.getValue().getAsString());
             }
         }

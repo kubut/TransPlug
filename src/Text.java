@@ -9,8 +9,12 @@ public class Text {
     public static final String KEY = "Key";
     public static final String COPY = "Copy key";
     public static final String ADD_KEY = "New translation";
+    public static final String OPEN_FILE = "Open ";
     public static final String TOAST_RELOAD_TITLE = "Synchronization";
     public static final String TOAST_RELOAD_CONTENT = "Files are synchronized";
     public static final String TRANS_STATE_INCOMPLITE = "No translation";
     public static final String TRANS_STATE_EMPTY = "Empty translation";
+    public static final String TOAST_NO_SUCH_FILE_TITLE = "No such file!";
+    public static final String TOAST_NO_SUCH_FILE_CONTENT = "File with translation cannot be found!";
+
 }
