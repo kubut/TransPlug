@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>pl.jgorowski.transplug</id>
   <name>TransPlug</name>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
   <vendor email="ja@jgorowskipl" url="http://www.jgorowski.pl">Spline Software</vendor>
 
   <description><![CDATA[
@@ -34,6 +34,13 @@
   ]]></description>
 
   <change-notes><![CDATA[
+    <b>0.5.0</b>
+    <ul>
+      <li> Fixed right-menu</li>
+      <li> Fixed add option</li>
+      <li> Added option 'Show file' to right menu</li>
+    </ul>
+
     <b>0.4.0</b>
     <ul>
       <li> Translation can be added by right-click</li>
